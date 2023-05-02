@@ -16,4 +16,6 @@ public class DateConverter {
         LocalTime result = LocalTime.of(Integer.parseInt(array[0]), Integer.parseInt(array[1]));
         return result;
     }
+
+    //Test
 }
