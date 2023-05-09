@@ -12,6 +12,9 @@ import utils.DateConverter;
 import java.sql.SQLException;
 import java.time.LocalDate;
 
+/**
+ * The TreatmentController is a controller for the treatment window. It's there to populate the window when clicking on a treatment and save changes.
+ */
 public class TreatmentController {
     @FXML
     private Label lblPatientName;
@@ -37,6 +40,12 @@ public class TreatmentController {
     private Patient patient;
     private Treatment treatment;
 
+    /**
+     * Initializes the controller with the AllTreatmentController, the current stage, and the current treatment.
+     * @param controller
+     * @param stage
+     * @param treatment
+     */
     public void initializeController(AllTreatmentController controller, Stage stage, Treatment treatment) {
         this.stage = stage;
         this.controller= controller;
@@ -49,7 +58,9 @@ public class TreatmentController {
             e.printStackTrace();
         }
     }
-
+    /**
+     * Populates the window's FXML elements with the data from the patient and treatment.
+     */
     private void showData(){
         this.lblPatientName.setText(patient.getSurname()+", "+patient.getFirstName());
         this.lblCarelevel.setText(patient.getCareLevel());
@@ -60,7 +71,9 @@ public class TreatmentController {
         this.txtDescription.setText(this.treatment.getDescription());
         this.taRemarks.setText(this.treatment.getRemarks());
     }
-
+    /**
+     * Handles the "change" button click event. Updates the treatment with the data entered by the user and closes the stage.
+     */
     @FXML
     public void handleChange(){
         this.treatment.setDate(this.datepicker.getValue().toString());
@@ -72,7 +85,9 @@ public class TreatmentController {
         controller.readAllAndShowInTableView();
         stage.close();
     }
-
+    /**
+     * Updates the treatment in the database.
+     */
     private void doUpdate(){
         TreatmentDAO dao = DAOFactory.getDAOFactory().createTreatmentDAO();
         try {
@@ -81,7 +96,9 @@ public class TreatmentController {
             e.printStackTrace();
         }
     }
-
+    /**
+     * Handles the "Cancel" button click event. Closes the stage without making any changes to the treatment.
+     */
     @FXML
     public void handleCancel(){
         stage.close();
