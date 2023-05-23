@@ -15,6 +15,9 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+/**
+ * The <code>NewTreatmentController</code> contains . It determines which data is displayed and how to react to events.
+ */
 public class NewTreatmentController {
     @FXML
     private Label lblSurname;
@@ -34,7 +37,9 @@ public class NewTreatmentController {
     private AllTreatmentController controller;
     private Patient patient;
     private Stage stage;
-
+    /**
+     * Sets controller, patient and stage also use showPatientData()
+     */
     public void initialize(AllTreatmentController controller, Stage stage, Patient patient) {
         this.controller= controller;
         this.patient = patient;
@@ -42,11 +47,17 @@ public class NewTreatmentController {
         showPatientData();
     }
 
+    /**
+     * Sets first and surname in label
+     */
     private void showPatientData(){
         this.lblFirstname.setText(patient.getFirstName());
         this.lblSurname.setText(patient.getSurname());
     }
 
+    /**
+     * handles an add-click-event. Creates a treatment and calls the create method
+     */
     @FXML
     public void handleAdd(){
         LocalDate date = this.datepicker.getValue();
@@ -62,6 +73,10 @@ public class NewTreatmentController {
         stage.close();
     }
 
+    /**
+     * creates a new treatment and adds the treatment to the database table (treatment)
+     * @param treatment
+     */
     private void createTreatment(Treatment treatment) {
         TreatmentDAO dao = DAOFactory.getDAOFactory().createTreatmentDAO();
         try {
@@ -71,6 +86,9 @@ public class NewTreatmentController {
         }
     }
 
+    /**
+     * handles a cancel-click-event. cancels the adding process
+     */
     @FXML
     public void handleCancel(){
         stage.close();
