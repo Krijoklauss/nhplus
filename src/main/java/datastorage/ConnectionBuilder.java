@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
- * The ConnectionBuilder 
+ * The ConnectionBuilder class. It has a constructor and two methods to either open or close connections.
  */
 public class ConnectionBuilder {
     private static Connection conn;
