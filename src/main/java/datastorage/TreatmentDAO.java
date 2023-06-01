@@ -64,10 +64,16 @@ public class TreatmentDAO extends DAOimp<Treatment> {
      * @return
      */
     @Override
-    protected String getReadAllStatementString() {
-        return "SELECT * FROM treatment";
+    protected String getReadAllNotArchivedStatementString() {
+        return "SELECT treatment.* FROM treatment LEFT JOIN patient on treatment.pid=patient.pid WHERE patient.archived=false";
     }
 
+    /**
+     * Converts the ResultSet into a ArrayList
+     * @param result
+     * @return
+     * @throws SQLException
+     */
     @Override
     protected ArrayList<Treatment> getListFromResultSet(ResultSet result) throws SQLException {
         ArrayList<Treatment> list = new ArrayList<Treatment>();
@@ -102,7 +108,7 @@ public class TreatmentDAO extends DAOimp<Treatment> {
      * @return
      */
     @Override
-    protected String getDeleteStatementString(long key) {
+    protected String getArchiveStatementString(long key) {
         return String.format("Delete FROM treatment WHERE tid= %d", key);
     }
 
@@ -131,12 +137,20 @@ public class TreatmentDAO extends DAOimp<Treatment> {
     }
 
     /**
-     * Generates SQL statement for deleting a treatment by patientID
+     * Generates SQL statement for deleting a treatment by treatmentId
      * @param key
      * @throws SQLException
      */
-    public void deleteByPid(long key) throws SQLException {
+    public void deleteByTid(long key) throws SQLException {
         Statement st = conn.createStatement();
-        st.executeUpdate(String.format("Delete FROM treatment WHERE pid= %d", key));
+        st.executeUpdate(String.format("DELETE FROM treatment WHERE tid= %d", key));
+    }
+
+    /**
+     * Generates SQL statement for deleting a treatment
+     * @return
+     */
+    protected String getDeleteStatementString() {
+        return String.format("DELETE FROM treatment WHERE tid IN (SELECT tid FROM treatment JOIN patient ON treatment.pid = patient.pid WHERE patient.archived = true AND patient.archivedat <= DATE_SUB(CURDATE(), INTERVAL 10 YEAR))");
     }
 }

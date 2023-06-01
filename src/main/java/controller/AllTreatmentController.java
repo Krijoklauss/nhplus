@@ -82,7 +82,7 @@ public class AllTreatmentController {
         this.dao = DAOFactory.getDAOFactory().createTreatmentDAO();
         List<Treatment> allTreatments;
         try {
-            allTreatments = dao.readAll();
+            allTreatments = dao.readAllNotArchived();
             for (Treatment treatment : allTreatments) {
                 this.tableviewContent.add(treatment);
             }
@@ -98,7 +98,7 @@ public class AllTreatmentController {
     private void createComboBoxData(){
         PatientDAO dao = DAOFactory.getDAOFactory().createPatientDAO();
         try {
-            patientList = (ArrayList<Patient>) dao.readAll();
+            patientList = (ArrayList<Patient>) dao.readAllNotArchived();
             this.myComboBoxData.add("alle");
             for (Patient patient: patientList) {
                 this.myComboBoxData.add(patient.getSurname());
@@ -120,7 +120,7 @@ public class AllTreatmentController {
         List<Treatment> allTreatments;
         if(p.equals("alle")){
             try {
-                allTreatments= this.dao.readAll();
+                allTreatments= this.dao.readAllNotArchived();
                 for (Treatment treatment : allTreatments) {
                     this.tableviewContent.add(treatment);
                 }
@@ -166,7 +166,7 @@ public class AllTreatmentController {
         Treatment t = this.tableviewContent.remove(index);
         TreatmentDAO dao = DAOFactory.getDAOFactory().createTreatmentDAO();
         try {
-            dao.deleteById(t.getTid());
+            dao.deleteByTid(t.getTid());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -224,6 +224,7 @@ public class AllTreatmentController {
             stage.setScene(scene);
             stage.setResizable(false);
             stage.showAndWait();
+            comboBox.getSelectionModel().select(0);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

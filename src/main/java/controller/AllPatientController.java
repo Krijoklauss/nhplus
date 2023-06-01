@@ -36,7 +36,7 @@ public class AllPatientController {
     private TableColumn<Patient, String> colRoom;
 
     @FXML
-    Button btnDelete;
+    Button btnArchived;
     @FXML
     Button btnAdd;
     @FXML
@@ -55,7 +55,7 @@ public class AllPatientController {
     private PatientDAO dao;
 
     /**
-     * Initializes the corresponding fields. Is called as soon as the corresponding FXML file is to be displayed.
+     * Initializes the corresponding fields. Is called as soon as the corresponding FXML file is to be displayed. Also calls the autoDelete method
      */
     public void initialize() {
         readAllAndShowInTableView();
@@ -79,6 +79,7 @@ public class AllPatientController {
         this.colRoom.setCellValueFactory(new PropertyValueFactory<Patient, String>("roomnumber"));
         this.colRoom.setCellFactory(TextFieldTableCell.forTableColumn());
 
+        autoDelete();
         //Anzeigen der Daten
         this.tableView.setItems(this.tableviewContent);
     }
@@ -154,7 +155,7 @@ public class AllPatientController {
         this.dao = DAOFactory.getDAOFactory().createPatientDAO();
         List<Patient> allPatients;
         try {
-            allPatients = dao.readAll();
+            allPatients = dao.readAllNotArchived();
             for (Patient p : allPatients) {
                 this.tableviewContent.add(p);
             }
@@ -164,15 +165,13 @@ public class AllPatientController {
     }
 
     /**
-     * handles a delete-click-event. Calls the delete methods in the {@link PatientDAO} and {@link TreatmentDAO}
+     * handles an archive-click-event. Calls the archive methods in the {@link PatientDAO}
      */
     @FXML
-    public void handleDeleteRow() {
-        TreatmentDAO tDao = DAOFactory.getDAOFactory().createTreatmentDAO();
+    public void handleArchiveRow() {
         Patient selectedItem = this.tableView.getSelectionModel().getSelectedItem();
         try {
-            tDao.deleteByPid(selectedItem.getPid());
-            dao.deleteById(selectedItem.getPid());
+            dao.archiveById(selectedItem.getPid());
             this.tableView.getItems().remove(selectedItem);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -180,7 +179,7 @@ public class AllPatientController {
     }
 
     /**
-     * handles a add-click-event. Creates a patient and calls the create method in the {@link PatientDAO}
+     * handles an add-click-event. Creates a patient and calls the create method in the {@link PatientDAO}
      */
     @FXML
     public void handleAdd() {
@@ -191,7 +190,7 @@ public class AllPatientController {
         String carelevel = this.txtCarelevel.getText();
         String room = this.txtRoom.getText();
         try {
-            Patient p = new Patient(firstname, surname, date, carelevel, room);
+            Patient p = new Patient(firstname, surname, date, carelevel, room,false , null);
             dao.create(p);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -209,5 +208,19 @@ public class AllPatientController {
         this.txtBirthday.clear();
         this.txtCarelevel.clear();
         this.txtRoom.clear();
+    }
+
+    /**
+     * checks if there is any patient that is archived for 10 years and deletes it
+     */
+    private void autoDelete(){
+        TreatmentDAO tDao=DAOFactory.getDAOFactory().createTreatmentDAO();
+        try {
+            tDao.delete();
+            dao.delete();
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+
     }
 }

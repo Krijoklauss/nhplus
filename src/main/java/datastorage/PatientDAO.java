@@ -28,8 +28,9 @@ public class PatientDAO extends DAOimp<Patient> {
      */
     @Override
     protected String getCreateStatementString(Patient patient) {
-        return String.format("INSERT INTO patient (firstname, surname, dateOfBirth, carelevel, roomnumber) VALUES ('%s', '%s', '%s', '%s', '%s')",
-                patient.getFirstName(), patient.getSurname(), patient.getDateOfBirth(), patient.getCareLevel(), patient.getRoomnumber());
+        String archivedAt=(patient.getArchivedAt()!=null)?"'"+patient.getArchivedAt()+"'":null;
+        return String.format("INSERT INTO patient (firstname, surname, dateOfBirth, carelevel, roomnumber, archived, archivedat) VALUES ('%s', '%s', '%s', '%s', '%s','%b',%s)",
+                patient.getFirstName(), patient.getSurname(), patient.getDateOfBirth(), patient.getCareLevel(), patient.getRoomnumber(),patient.getArchived(),archivedAt);
     }
 
     /**
@@ -51,23 +52,27 @@ public class PatientDAO extends DAOimp<Patient> {
     protected Patient getInstanceFromResultSet(ResultSet result) throws SQLException {
         Patient p = null;
         LocalDate date = DateConverter.convertStringToLocalDate(result.getString(4));
+        LocalDate archivedAt = DateConverter.convertStringToLocalDate(result.getString(8));
         p = new Patient(result.getInt(1), result.getString(2),
-                result.getString(3), date, result.getString(5),
-                result.getString(6));
+                result.getString(3), date,
+                result.getString(5), result.getString(6),
+                result.getBoolean(7), archivedAt);
         return p;
     }
 
     /**
-     * generates a <code>SELECT</code>-Statement for all patients.
+     * generates a <code>SELECT</code>-Statement for all not archived patients.
+     *
      * @return <code>String</code> with the generated SQL.
      */
     @Override
-    protected String getReadAllStatementString() {
-        return "SELECT * FROM patient";
+    protected String getReadAllNotArchivedStatementString() {
+        return "SELECT * FROM patient WHERE archived=false";
     }
 
     /**
      * maps a <code>ResultSet</code> to a <code>Patient-List</code>
+     *
      * @param result ResultSet with a multiple rows. Data will be mapped to patient-object.
      * @return ArrayList with patients from the resultSet.
      */
@@ -76,10 +81,12 @@ public class PatientDAO extends DAOimp<Patient> {
         ArrayList<Patient> list = new ArrayList<Patient>();
         Patient p = null;
         while (result.next()) {
-            LocalDate date = DateConverter.convertStringToLocalDate(result.getString(4));
+            LocalDate birthDate = DateConverter.convertStringToLocalDate(result.getString(4));
+            LocalDate archivedAt = DateConverter.convertStringToLocalDate(result.getString(8));
             p = new Patient(result.getInt(1), result.getString(2),
-                    result.getString(3), date,
-                    result.getString(5), result.getString(6));
+                    result.getString(3), birthDate,
+                    result.getString(5), result.getString(6),
+                    result.getBoolean(7), archivedAt);
             list.add(p);
         }
         return list;
@@ -92,18 +99,28 @@ public class PatientDAO extends DAOimp<Patient> {
      */
     @Override
     protected String getUpdateStatementString(Patient patient) {
+        String archivedAt=(patient.getArchivedAt()!=null)?"'"+patient.getArchivedAt()+"'":null;
         return String.format("UPDATE patient SET firstname = '%s', surname = '%s', dateOfBirth = '%s', carelevel = '%s', " +
-                "roomnumber = '%s' WHERE pid = %d", patient.getFirstName(), patient.getSurname(), patient.getDateOfBirth(),
-                patient.getCareLevel(), patient.getRoomnumber(), patient.getPid());
+                        "roomnumber = '%s', archived='%b', archivedat=%s WHERE pid = %d", patient.getFirstName(), patient.getSurname(), patient.getDateOfBirth(),
+                patient.getCareLevel(), patient.getRoomnumber(), patient.getArchived(), archivedAt, patient.getPid());
     }
 
     /**
-     * generates a <code>delete</code>-Statement for a given key
-     * @param key for which a specific DELETE is to be created
+     * generates a <code>UPDATE</code>-Statement for a given key
+     * @param key for which a specific UPDATE is to be created
      * @return <code>String</code> with the generated SQL.
      */
     @Override
-    protected String getDeleteStatementString(long key) {
-        return String.format("Delete FROM patient WHERE pid=%d", key);
+    protected String getArchiveStatementString(long key) {
+        LocalDate date = LocalDate.now();
+        return String.format("UPDATE patient SET archived=true, archivedat='%s' WHERE pid=%d", date, key);
+    }
+
+    /**
+     * generates a <code>DELETE</code>-Statement for automatic deleting patients
+     * @return <code>String</code> with generated SQL.
+     */
+    protected String getDeleteStatementString() {
+        return String.format("DELETE FROM patient WHERE archived = true AND archivedat <= DATE_SUB(CURDATE(), INTERVAL 10 YEAR)");
     }
 }

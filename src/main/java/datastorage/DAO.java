@@ -27,7 +27,7 @@ public interface DAO<T> {
      * @return List of objects T
      * @throws SQLException
      */
-    List<T> readAll() throws SQLException;
+    List<T> readAllNotArchived() throws SQLException;
 
     /**
      *
@@ -36,10 +36,4 @@ public interface DAO<T> {
      */
     void update(T t) throws SQLException;
 
-    /**
-     *
-     * @param key
-     * @throws SQLException
-     */
-    void deleteById(long key) throws SQLException;
 }
