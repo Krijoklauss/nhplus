@@ -6,10 +6,10 @@ import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-
 import java.io.IOException;
 
 /**
@@ -28,35 +28,27 @@ public class Main extends Application {
      */
     @Override
     public void start(Stage primaryStage) {
+        primaryStage.getIcons().add(new Image(Main.class.getResourceAsStream("/nursing.png")));
         this.primaryStage = primaryStage;
-        mainWindow();
+        loginWindow();
     }
 
     /**
      *  Creates the main window of the app
      *  It is run by the overridden start function
      */
-    public void mainWindow() {
-        try {
-            FXMLLoader loader = new FXMLLoader(Main.class.getResource("/MainWindowView.fxml"));
-            BorderPane pane = loader.load();
 
+    public void loginWindow() {
+        try {
+            FXMLLoader loader = new FXMLLoader(Main.class.getResource("/LoginWindow.fxml"));
+            BorderPane pane = loader.load();
             Scene scene = new Scene(pane);
-            this.primaryStage.setTitle("NHPlus");
+
+            this.primaryStage.setTitle("NHPlus - Login");
             this.primaryStage.setScene(scene);
             this.primaryStage.setResizable(false);
             this.primaryStage.show();
-
-            this.primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-                @Override
-                public void handle(WindowEvent e) {
-                    ConnectionBuilder.closeConnection();
-                    Platform.exit();
-                    System.exit(0);
-                }
-            });
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
+        } catch(IOException e) {
             e.printStackTrace();
         }
     }
