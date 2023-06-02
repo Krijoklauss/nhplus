@@ -14,6 +14,8 @@ public class Patient extends Person {
     private String careLevel;
     private String roomnumber;
     private List<Treatment> allTreatments = new ArrayList<Treatment>();
+    private Boolean archived;
+    private LocalDate archivedAt;
 
     /**
      * constructs a patient from the given params.
@@ -22,12 +24,16 @@ public class Patient extends Person {
      * @param dateOfBirth
      * @param careLevel
      * @param roomnumber
+     * @param archived
+     * @param archivedAt
      */
-    public Patient(String firstName, String surname, LocalDate dateOfBirth, String careLevel, String roomnumber) {
+    public Patient(String firstName, String surname, LocalDate dateOfBirth, String careLevel, String roomnumber,Boolean archived,LocalDate archivedAt) {
         super(firstName, surname);
         this.dateOfBirth = dateOfBirth;
         this.careLevel = careLevel;
         this.roomnumber = roomnumber;
+        this.archived=archived;
+        this.archivedAt=archivedAt;
     }
 
     /**
@@ -39,12 +45,14 @@ public class Patient extends Person {
      * @param careLevel
      * @param roomnumber
      */
-    public Patient(long pid, String firstName, String surname, LocalDate dateOfBirth, String careLevel, String roomnumber) {
+    public Patient(long pid, String firstName, String surname, LocalDate dateOfBirth, String careLevel, String roomnumber,Boolean archived, LocalDate archivedAt) {
         super(firstName, surname);
         this.pid = pid;
         this.dateOfBirth = dateOfBirth;
         this.careLevel = careLevel;
         this.roomnumber = roomnumber;
+        this.archived=archived;
+        this.archivedAt=archivedAt;
     }
 
     /**
@@ -104,6 +112,37 @@ public class Patient extends Person {
         this.roomnumber = roomnumber;
     }
 
+    /**
+     *
+     * @return archived as Boolean
+     */
+    public Boolean getArchived(){
+        return archived;
+    }
+
+    /**
+     *
+     * @param archived
+     */
+    public void setArchived(Boolean archived){
+        this.archived=archived;
+    }
+
+    /**
+     *
+     * @return ArchivedAt as LocalDate
+     */
+    public LocalDate getArchivedAt(){
+        return archivedAt;
+    }
+
+    /**
+     *
+     * @param archivedAt
+     */
+    public void setArchivedAt(LocalDate archivedAt){
+        this.archivedAt=archivedAt;
+    }
 
     /**
      * adds a treatment to the treatment-list, if it does not already contain it.
