@@ -1,10 +1,12 @@
 package datastorage;
 
 import model.Caregiver;
+import utils.DateConverter;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class CaregiverDAO extends DAOimp<Caregiver> {
@@ -24,8 +26,9 @@ public class CaregiverDAO extends DAOimp<Caregiver> {
 	 */
 	@Override
 	protected String getCreateStatementString(Caregiver caregiver) {
-		return String.format("INSERT INTO caregiver (firstname, surname, phonenumber) VALUES ('%s', '%s', '%s')",
-			caregiver.getFirstName(), caregiver.getSurname(), caregiver.getPhoneNumber());
+		String archivedAt = (caregiver.getArchivedAt() != null) ? "'" + caregiver.getArchivedAt() + "'" : null;
+		return String.format("INSERT INTO caregiver (firstname, surname, phonenumber, archived, archivedat) VALUES ('%s', '%s', '%s', '%b', %s)",
+			caregiver.getFirstName(), caregiver.getSurname(), caregiver.getPhoneNumber(), caregiver.getArchived(), archivedAt);
 	}
 
 	/**
@@ -44,7 +47,8 @@ public class CaregiverDAO extends DAOimp<Caregiver> {
 	 */
 	@Override
 	protected Caregiver getInstanceFromResultSet(ResultSet result) throws SQLException {
-		Caregiver c = new Caregiver(result.getInt(1), result.getString(2), result.getString(3), result.getString(4));
+		LocalDate archivedAt = DateConverter.convertStringToLocalDate(result.getString(6));
+		Caregiver c = new Caregiver(result.getInt(1), result.getString(2), result.getString(3), result.getString(4), result.getBoolean(5), archivedAt);
 		return c;
 	}
 
@@ -52,8 +56,8 @@ public class CaregiverDAO extends DAOimp<Caregiver> {
 	 * @return all caregivers
 	 */
 	@Override
-	protected String getReadAllStatementString() {
-		return "SELECT * FROM caregiver";
+	protected String getReadAllNotArchivedStatementString() {
+		return "SELECT * FROM caregiver WHERE archived = false";
 	}
 
 	/**
@@ -66,7 +70,8 @@ public class CaregiverDAO extends DAOimp<Caregiver> {
 		ArrayList<Caregiver> list = new ArrayList<Caregiver>();
 		Caregiver c = null;
 		while (result.next()) {
-			c = new Caregiver(result.getInt(1), result.getString(2), result.getString(3), result.getString(4));
+			LocalDate archivedAt = DateConverter.convertStringToLocalDate(result.getString(6));
+			c = new Caregiver(result.getInt(1), result.getString(2), result.getString(3), result.getString(4), result.getBoolean(5), archivedAt);
 			list.add(c);
 		}
 		return list;
@@ -83,10 +88,20 @@ public class CaregiverDAO extends DAOimp<Caregiver> {
 
 	/**
 	 * @param key
+	 * @return String
+	 */
+
+	/**
 	 * @return
 	 */
 	@Override
-	protected String getDeleteStatementString(long key) {
-		return String.format("Delete FROM caregiver WHERE cid= %d", key);
+	protected String getDeleteStatementString() {
+		return String.format("DELETE FROM caregiver WHERE archived = true AND archivedat <= DATE_SUB(CURDATE(), INTERVAL 10 YEAR)");
+	}
+
+	@Override
+	protected String getArchiveStatementString(long key) {
+		LocalDate date = LocalDate.now();
+		return String.format("UPDATE caregiver SET archived=true, archivedat='%s' WHERE cid=%d", date, key);
 	}
 }
