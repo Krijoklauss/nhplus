@@ -24,7 +24,7 @@ public class CaregiverDAO extends DAOimp<Caregiver> {
 	 */
 	@Override
 	protected String getCreateStatementString(Caregiver caregiver) {
-		return String.format("INSERT INTO caregiver (firstname, surname, phoneNumber) VALUES ('%s', '%s', '%s')",
+		return String.format("INSERT INTO caregiver (firstname, surname, phonenumber) VALUES ('%s', '%s', '%s')",
 			caregiver.getFirstName(), caregiver.getSurname(), caregiver.getPhoneNumber());
 	}
 
@@ -44,7 +44,7 @@ public class CaregiverDAO extends DAOimp<Caregiver> {
 	 */
 	@Override
 	protected Caregiver getInstanceFromResultSet(ResultSet result) throws SQLException {
-		Caregiver c = new Caregiver(result.getLong(1), result.getString(2), result.getString(3), result.getString(4));
+		Caregiver c = new Caregiver(result.getInt(1), result.getString(2), result.getString(3), result.getString(4));
 		return c;
 	}
 
@@ -66,7 +66,7 @@ public class CaregiverDAO extends DAOimp<Caregiver> {
 		ArrayList<Caregiver> list = new ArrayList<Caregiver>();
 		Caregiver c = null;
 		while (result.next()) {
-			c = new Caregiver(result.getLong(1), result.getString(2), result.getString(3), result.getString(4));
+			c = new Caregiver(result.getInt(1), result.getString(2), result.getString(3), result.getString(4));
 			list.add(c);
 		}
 		return list;
