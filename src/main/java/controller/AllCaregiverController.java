@@ -10,6 +10,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import model.Caregiver;
 
 import java.sql.SQLException;
@@ -27,15 +28,15 @@ public class AllCaregiverController {
 	@FXML
 	private TableColumn<Caregiver, String> colTelephone;
 	@FXML
-	private Button btnDelete;
+	Button btnDelete;
 	@FXML
-	private Button btnAdd;
+	Button btnAdd;
 	@FXML
-	private TextField txfSurname;
+	TextField txfSurname;
 	@FXML
-	private TextField txfFirstname;
+	TextField txfFirstname;
 	@FXML
-	private TextField txfTelephone;
+	TextField txfTelephone;
 	private ObservableList<Caregiver> tableviewContent =
 		FXCollections.observableArrayList();
 
@@ -48,9 +49,12 @@ public class AllCaregiverController {
 	public void initialize() {
 		readAllAndShowInTableView();
 		this.colID.setCellValueFactory(new PropertyValueFactory<Caregiver, Integer>("cid"));
-		this.colFirstName.setCellValueFactory(new PropertyValueFactory<Caregiver, String>("firstname"));
+		this.colFirstName.setCellValueFactory(new PropertyValueFactory<Caregiver, String>("firstName"));
+		this.colFirstName.setCellFactory(TextFieldTableCell.forTableColumn());
 		this.colSurname.setCellValueFactory(new PropertyValueFactory<Caregiver, String>("surname"));
-		this.colTelephone.setCellValueFactory(new PropertyValueFactory<Caregiver, String>("phonenumber"));
+		this.colSurname.setCellFactory(TextFieldTableCell.forTableColumn());
+		this.colTelephone.setCellValueFactory(new PropertyValueFactory<Caregiver, String>("phoneNumber"));
+		this.colTelephone.setCellFactory(TextFieldTableCell.forTableColumn());
 		this.tableView.setItems(this.tableviewContent);
 	}
 
