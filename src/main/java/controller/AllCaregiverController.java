@@ -2,6 +2,7 @@ package controller;
 
 import datastorage.CaregiverDAO;
 import datastorage.DAOFactory;
+import datastorage.TreatmentDAO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -55,6 +56,7 @@ public class AllCaregiverController {
 		this.colSurname.setCellFactory(TextFieldTableCell.forTableColumn());
 		this.colTelephone.setCellValueFactory(new PropertyValueFactory<Caregiver, String>("phoneNumber"));
 		this.colTelephone.setCellFactory(TextFieldTableCell.forTableColumn());
+		autoDelete();
 		this.tableView.setItems(this.tableviewContent);
 	}
 
@@ -66,7 +68,7 @@ public class AllCaregiverController {
 		this.dao = DAOFactory.getDAOFactory().createCaregiverDAO();
 		List<Caregiver> allCaregivers;
 		try {
-			allCaregivers = dao.readAll();
+			allCaregivers = dao.readAllNotArchived();
 			for (Caregiver caregiver : allCaregivers) {
 				this.tableviewContent.add(caregiver);
 			}
@@ -79,10 +81,10 @@ public class AllCaregiverController {
 	 * Deletes the selected caregiver in the database
 	 */
 	@FXML
-	public void handleDeleteRow() {
+	public void handleArchiveRow() {
 		Caregiver selectedItem = this.tableView.getSelectionModel().getSelectedItem();
 		try {
-			dao.deleteById(selectedItem.getCid());
+			dao.archiveById(selectedItem.getCid());
 			this.tableView.getItems().remove(selectedItem);
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -95,7 +97,7 @@ public class AllCaregiverController {
 	@FXML
 	public void handleNewCaregiver() {
 		try {
-			Caregiver caregiver = new Caregiver(txfFirstname.getText(), txfSurname.getText(), txfTelephone.getText());
+			Caregiver caregiver = new Caregiver(txfFirstname.getText(), txfSurname.getText(), txfTelephone.getText(), false, null);
 			dao.create(caregiver);
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -157,5 +159,16 @@ public class AllCaregiverController {
 	public void handleOnEditTelephone(TableColumn.CellEditEvent<Caregiver, String> event) {
 		event.getRowValue().setPhoneNumber(event.getNewValue());
 		doUpdate(event);
+	}
+
+	/**
+	 * checks if there is any caregiver that is archived for 10 years and deletes it
+	 */
+	private void autoDelete() {
+		try {
+			dao.delete();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 }

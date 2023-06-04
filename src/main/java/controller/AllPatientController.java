@@ -11,216 +11,219 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import model.Patient;
 import utils.DateConverter;
 import datastorage.DAOFactory;
+
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
-
 
 /**
  * The <code>AllPatientController</code> contains the entire logic of the patient view. It determines which data is displayed and how to react to events.
  */
 public class AllPatientController {
-    @FXML
-    private TableView<Patient> tableView;
-    @FXML
-    private TableColumn<Patient, Integer> colID;
-    @FXML
-    private TableColumn<Patient, String> colFirstName;
-    @FXML
-    private TableColumn<Patient, String> colSurname;
-    @FXML
-    private TableColumn<Patient, String> colDateOfBirth;
-    @FXML
-    private TableColumn<Patient, String> colCareLevel;
-    @FXML
-    private TableColumn<Patient, String> colRoom;
+	@FXML
+	private TableView<Patient> tableView;
+	@FXML
+	private TableColumn<Patient, Integer> colID;
+	@FXML
+	private TableColumn<Patient, String> colFirstName;
+	@FXML
+	private TableColumn<Patient, String> colSurname;
+	@FXML
+	private TableColumn<Patient, String> colDateOfBirth;
+	@FXML
+	private TableColumn<Patient, String> colCareLevel;
+	@FXML
+	private TableColumn<Patient, String> colRoom;
 
-    @FXML
-    Button btnArchived;
-    @FXML
-    Button btnAdd;
-    @FXML
-    TextField txtSurname;
-    @FXML
-    TextField txtFirstname;
-    @FXML
-    TextField txtBirthday;
-    @FXML
-    TextField txtCarelevel;
-    @FXML
-    TextField txtRoom;
+	@FXML
+	Button btnArchived;
+	@FXML
+	Button btnAdd;
+	@FXML
+	TextField txtSurname;
+	@FXML
+	TextField txtFirstname;
+	@FXML
+	TextField txtBirthday;
+	@FXML
+	TextField txtCarelevel;
+	@FXML
+	TextField txtRoom;
 
+	private ObservableList<Patient> tableviewContent = FXCollections.observableArrayList();
+	private PatientDAO dao;
 
-    private ObservableList<Patient> tableviewContent = FXCollections.observableArrayList();
-    private PatientDAO dao;
+	/**
+	 * Initializes the corresponding fields. Is called as soon as the corresponding FXML file is to be displayed. Also calls the autoDelete method
+	 */
+	public void initialize() {
+		readAllAndShowInTableView();
 
-    /**
-     * Initializes the corresponding fields. Is called as soon as the corresponding FXML file is to be displayed. Also calls the autoDelete method
-     */
-    public void initialize() {
-        readAllAndShowInTableView();
+		this.colID.setCellValueFactory(new PropertyValueFactory<Patient, Integer>("pid"));
 
-        this.colID.setCellValueFactory(new PropertyValueFactory<Patient, Integer>("pid"));
+		//CellValuefactory zum Anzeigen der Daten in der TableView
+		this.colFirstName.setCellValueFactory(new PropertyValueFactory<Patient, String>("firstName"));
+		//CellFactory zum Schreiben innerhalb der Tabelle
+		this.colFirstName.setCellFactory(TextFieldTableCell.forTableColumn());
 
-        //CellValuefactory zum Anzeigen der Daten in der TableView
-        this.colFirstName.setCellValueFactory(new PropertyValueFactory<Patient, String>("firstName"));
-        //CellFactory zum Schreiben innerhalb der Tabelle
-        this.colFirstName.setCellFactory(TextFieldTableCell.forTableColumn());
+		this.colSurname.setCellValueFactory(new PropertyValueFactory<Patient, String>("surname"));
+		this.colSurname.setCellFactory(TextFieldTableCell.forTableColumn());
 
-        this.colSurname.setCellValueFactory(new PropertyValueFactory<Patient, String>("surname"));
-        this.colSurname.setCellFactory(TextFieldTableCell.forTableColumn());
+		this.colDateOfBirth.setCellValueFactory(new PropertyValueFactory<Patient, String>("dateOfBirth"));
+		this.colDateOfBirth.setCellFactory(TextFieldTableCell.forTableColumn());
 
-        this.colDateOfBirth.setCellValueFactory(new PropertyValueFactory<Patient, String>("dateOfBirth"));
-        this.colDateOfBirth.setCellFactory(TextFieldTableCell.forTableColumn());
+		this.colCareLevel.setCellValueFactory(new PropertyValueFactory<Patient, String>("careLevel"));
+		this.colCareLevel.setCellFactory(TextFieldTableCell.forTableColumn());
 
-        this.colCareLevel.setCellValueFactory(new PropertyValueFactory<Patient, String>("careLevel"));
-        this.colCareLevel.setCellFactory(TextFieldTableCell.forTableColumn());
+		this.colRoom.setCellValueFactory(new PropertyValueFactory<Patient, String>("roomnumber"));
+		this.colRoom.setCellFactory(TextFieldTableCell.forTableColumn());
 
-        this.colRoom.setCellValueFactory(new PropertyValueFactory<Patient, String>("roomnumber"));
-        this.colRoom.setCellFactory(TextFieldTableCell.forTableColumn());
+		autoDelete();
+		//Anzeigen der Daten
+		this.tableView.setItems(this.tableviewContent);
+	}
 
-        autoDelete();
-        //Anzeigen der Daten
-        this.tableView.setItems(this.tableviewContent);
-    }
+	/**
+	 * handles new firstname value
+	 *
+	 * @param event event including the value that a user entered into the cell
+	 */
+	@FXML
+	public void handleOnEditFirstname(TableColumn.CellEditEvent<Patient, String> event) {
+		event.getRowValue().setFirstName(event.getNewValue());
+		doUpdate(event);
+	}
 
-    /**
-     * handles new firstname value
-     * @param event event including the value that a user entered into the cell
-     */
-    @FXML
-    public void handleOnEditFirstname(TableColumn.CellEditEvent<Patient, String> event){
-        event.getRowValue().setFirstName(event.getNewValue());
-        doUpdate(event);
-    }
+	/**
+	 * handles new surname value
+	 *
+	 * @param event event including the value that a user entered into the cell
+	 */
+	@FXML
+	public void handleOnEditSurname(TableColumn.CellEditEvent<Patient, String> event) {
+		event.getRowValue().setSurname(event.getNewValue());
+		doUpdate(event);
+	}
 
-    /**
-     * handles new surname value
-     * @param event event including the value that a user entered into the cell
-     */
-    @FXML
-    public void handleOnEditSurname(TableColumn.CellEditEvent<Patient, String> event){
-        event.getRowValue().setSurname(event.getNewValue());
-        doUpdate(event);
-    }
+	/**
+	 * handles new birthdate value
+	 *
+	 * @param event event including the value that a user entered into the cell
+	 */
+	@FXML
+	public void handleOnEditDateOfBirth(TableColumn.CellEditEvent<Patient, String> event) {
+		event.getRowValue().setDateOfBirth(event.getNewValue());
+		doUpdate(event);
+	}
 
-    /**
-     * handles new birthdate value
-     * @param event event including the value that a user entered into the cell
-     */
-    @FXML
-    public void handleOnEditDateOfBirth(TableColumn.CellEditEvent<Patient, String> event){
-        event.getRowValue().setDateOfBirth(event.getNewValue());
-        doUpdate(event);
-    }
+	/**
+	 * handles new carelevel value
+	 *
+	 * @param event event including the value that a user entered into the cell
+	 */
+	@FXML
+	public void handleOnEditCareLevel(TableColumn.CellEditEvent<Patient, String> event) {
+		event.getRowValue().setCareLevel(event.getNewValue());
+		doUpdate(event);
+	}
 
-    /**
-     * handles new carelevel value
-     * @param event event including the value that a user entered into the cell
-     */
-    @FXML
-    public void handleOnEditCareLevel(TableColumn.CellEditEvent<Patient, String> event){
-        event.getRowValue().setCareLevel(event.getNewValue());
-        doUpdate(event);
-    }
+	/**
+	 * handles new roomnumber value
+	 *
+	 * @param event event including the value that a user entered into the cell
+	 */
+	@FXML
+	public void handleOnEditRoomnumber(TableColumn.CellEditEvent<Patient, String> event) {
+		event.getRowValue().setRoomnumber(event.getNewValue());
+		doUpdate(event);
+	}
 
-    /**
-     * handles new roomnumber value
-     * @param event event including the value that a user entered into the cell
-     */
-    @FXML
-    public void handleOnEditRoomnumber(TableColumn.CellEditEvent<Patient, String> event){
-        event.getRowValue().setRoomnumber(event.getNewValue());
-        doUpdate(event);
-    }
+	/**
+	 * updates a patient by calling the update-Method in the {@link PatientDAO}
+	 *
+	 * @param t row to be updated by the user (includes the patient)
+	 */
+	private void doUpdate(TableColumn.CellEditEvent<Patient, String> t) {
+		try {
+			dao.update(t.getRowValue());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 
+	/**
+	 * calls readAll in {@link PatientDAO} and shows patients in the table
+	 */
+	private void readAllAndShowInTableView() {
+		this.tableviewContent.clear();
+		this.dao = DAOFactory.getDAOFactory().createPatientDAO();
+		List<Patient> allPatients;
+		try {
+			allPatients = dao.readAllNotArchived();
+			for (Patient p : allPatients) {
+				this.tableviewContent.add(p);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 
-    /**
-     * updates a patient by calling the update-Method in the {@link PatientDAO}
-     * @param t row to be updated by the user (includes the patient)
-     */
-    private void doUpdate(TableColumn.CellEditEvent<Patient, String> t) {
-        try {
-            dao.update(t.getRowValue());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
+	/**
+	 * handles an archive-click-event. Calls the archive methods in the {@link PatientDAO}
+	 */
+	@FXML
+	public void handleArchiveRow() {
+		Patient selectedItem = this.tableView.getSelectionModel().getSelectedItem();
+		try {
+			dao.archiveById(selectedItem.getPid());
+			this.tableView.getItems().remove(selectedItem);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 
-    /**
-     * calls readAll in {@link PatientDAO} and shows patients in the table
-     */
-    private void readAllAndShowInTableView() {
-        this.tableviewContent.clear();
-        this.dao = DAOFactory.getDAOFactory().createPatientDAO();
-        List<Patient> allPatients;
-        try {
-            allPatients = dao.readAllNotArchived();
-            for (Patient p : allPatients) {
-                this.tableviewContent.add(p);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
+	/**
+	 * handles an add-click-event. Creates a patient and calls the create method in the {@link PatientDAO}
+	 */
+	@FXML
+	public void handleAdd() {
+		String surname = this.txtSurname.getText();
+		String firstname = this.txtFirstname.getText();
+		String birthday = this.txtBirthday.getText();
+		LocalDate date = DateConverter.convertStringToLocalDate(birthday);
+		String carelevel = this.txtCarelevel.getText();
+		String room = this.txtRoom.getText();
+		try {
+			Patient p = new Patient(firstname, surname, date, carelevel, room, false, null);
+			dao.create(p);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		readAllAndShowInTableView();
+		clearTextfields();
+	}
 
-    /**
-     * handles an archive-click-event. Calls the archive methods in the {@link PatientDAO}
-     */
-    @FXML
-    public void handleArchiveRow() {
-        Patient selectedItem = this.tableView.getSelectionModel().getSelectedItem();
-        try {
-            dao.archiveById(selectedItem.getPid());
-            this.tableView.getItems().remove(selectedItem);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
+	/**
+	 * removes content from all textfields
+	 */
+	private void clearTextfields() {
+		this.txtFirstname.clear();
+		this.txtSurname.clear();
+		this.txtBirthday.clear();
+		this.txtCarelevel.clear();
+		this.txtRoom.clear();
+	}
 
-    /**
-     * handles an add-click-event. Creates a patient and calls the create method in the {@link PatientDAO}
-     */
-    @FXML
-    public void handleAdd() {
-        String surname = this.txtSurname.getText();
-        String firstname = this.txtFirstname.getText();
-        String birthday = this.txtBirthday.getText();
-        LocalDate date = DateConverter.convertStringToLocalDate(birthday);
-        String carelevel = this.txtCarelevel.getText();
-        String room = this.txtRoom.getText();
-        try {
-            Patient p = new Patient(firstname, surname, date, carelevel, room,false , null);
-            dao.create(p);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        readAllAndShowInTableView();
-        clearTextfields();
-    }
-
-    /**
-     * removes content from all textfields
-     */
-    private void clearTextfields() {
-        this.txtFirstname.clear();
-        this.txtSurname.clear();
-        this.txtBirthday.clear();
-        this.txtCarelevel.clear();
-        this.txtRoom.clear();
-    }
-
-    /**
-     * checks if there is any patient that is archived for 10 years and deletes it
-     */
-    private void autoDelete(){
-        TreatmentDAO tDao=DAOFactory.getDAOFactory().createTreatmentDAO();
-        try {
-            tDao.delete();
-            dao.delete();
-        }catch(SQLException e){
-            e.printStackTrace();
-        }
-
-    }
+	/**
+	 * checks if there is any patient that is archived for 10 years and deletes it
+	 */
+	private void autoDelete() {
+		TreatmentDAO tDao = DAOFactory.getDAOFactory().createTreatmentDAO();
+		try {
+			tDao.delete();
+			dao.delete();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 }
