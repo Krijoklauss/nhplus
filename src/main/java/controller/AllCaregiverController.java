@@ -5,22 +5,19 @@ import datastorage.DAOFactory;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.AnchorPane;
-import javafx.stage.Stage;
 import model.Caregiver;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
 public class AllCaregiverController {
+	@FXML
+	private TableView<Caregiver> tableView;
 	@FXML
 	private TableColumn<Caregiver, Integer> colID;
 	@FXML
@@ -30,7 +27,9 @@ public class AllCaregiverController {
 	@FXML
 	private TableColumn<Caregiver, String> colTelephone;
 	@FXML
-	private TableView<Caregiver> tableView;
+	private Button btnDelete;
+	@FXML
+	private Button btnAdd;
 	@FXML
 	private TextField txfSurname;
 	@FXML
@@ -42,15 +41,12 @@ public class AllCaregiverController {
 
 	private CaregiverDAO dao;
 
-	private Main main;
-
 	/**
 	 * Initializes the corresponding fields.
 	 * Is called as soon as the corresponding FXML file is to be displayed.
 	 */
 	public void initialize() {
 		readAllAndShowInTableView();
-		this.main = main;
 		this.colID.setCellValueFactory(new PropertyValueFactory<Caregiver, Integer>("cid"));
 		this.colFirstName.setCellValueFactory(new PropertyValueFactory<Caregiver, String>("firstname"));
 		this.colSurname.setCellValueFactory(new PropertyValueFactory<Caregiver, String>("surname"));
@@ -76,15 +72,14 @@ public class AllCaregiverController {
 	}
 
 	/**
-	 * Deletes a caregiver in the database by the selectedIndex
+	 * Deletes the selected caregiver in the database
 	 */
 	@FXML
-	public void handleDelete() {
-		int index = this.tableView.getSelectionModel().getSelectedIndex();
-		Caregiver c = this.tableviewContent.remove(index);
-		CaregiverDAO dao = DAOFactory.getDAOFactory().createCaregiverDAO();
+	public void handleDeleteRow() {
+		Caregiver selectedItem = this.tableView.getSelectionModel().getSelectedItem();
 		try {
-			dao.deleteById(c.getCid());
+			dao.deleteById(selectedItem.getCid());
+			this.tableView.getItems().remove(selectedItem);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -99,49 +94,64 @@ public class AllCaregiverController {
 			Caregiver caregiver = new Caregiver(txfFirstname.getText(), txfSurname.getText(), txfTelephone.getText());
 			dao.create(caregiver);
 		} catch (SQLException e) {
-			Alert alert = new Alert(Alert.AlertType.ERROR);
-			alert.setTitle("Fehler");
-			alert.setHeaderText("Datenbankfehler");
-			alert.setContentText("Fehler beim Anlegen des Pflegers in der Datenbank!");
-			alert.showAndWait();
-		}
-	}
-
-	/**
-	 *  Handles mouseclick
-	 */
-	@FXML
-	public void handleMouseClick(){
-		tableView.setOnMouseClicked(event -> {
-			if (event.getClickCount() == 2 && (tableView.getSelectionModel().getSelectedItem() != null)) {
-				int index = this.tableView.getSelectionModel().getSelectedIndex();
-				Caregiver caregiver = this.tableviewContent.get(index);
-				caregiverWindow(caregiver);
-			}
-		});
-	}
-
-	/**
-	 * Creates a new window brought to the front GUI
-	 * @param caregiver
-	 */
-	public void caregiverWindow(Caregiver caregiver){
-		try {
-			FXMLLoader loader = new FXMLLoader(Main.class.getResource("/CaregiverView.fxml"));
-			AnchorPane pane = loader.load();
-			Scene scene = new Scene(pane);
-			//da die primaryStage noch im Hintergrund bleiben soll
-			Stage stage = new Stage();
-			CaregiverController controller = loader.getController();
-
-			controller.initializeController(this, stage, caregiver);
-
-			stage.setScene(scene);
-			stage.setResizable(false);
-			stage.showAndWait();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		readAllAndShowInTableView();
+		clearTextfields();
+	}
+
+	/**
+	 * removes content from all textfields
+	 */
+	private void clearTextfields() {
+		this.txfFirstname.clear();
+		this.txfSurname.clear();
+		this.txfTelephone.clear();
+	}
+
+	/**
+	 * updates a caregiver by calling the update-Method in the CaregiverDAO
+	 *
+	 * @param t row to be updated by the user (includes the caregiver)
+	 */
+	private void doUpdate(TableColumn.CellEditEvent<Caregiver, String> t) {
+		try {
+			dao.update(t.getRowValue());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * handles new firstname value
+	 *
+	 * @param event event including the value that a user entered into the cell
+	 */
+	@FXML
+	public void handleOnEditFirstname(TableColumn.CellEditEvent<Caregiver, String> event) {
+		event.getRowValue().setFirstName(event.getNewValue());
+		doUpdate(event);
+	}
+
+	/**
+	 * handles new surname value
+	 *
+	 * @param event event including the value that a user entered into the cell
+	 */
+	@FXML
+	public void handleOnEditSurname(TableColumn.CellEditEvent<Caregiver, String> event) {
+		event.getRowValue().setSurname(event.getNewValue());
+		doUpdate(event);
+	}
+
+	/**
+	 * handles new phonenumber value
+	 *
+	 * @param event event including the value that a user entered into the cell
+	 */
+	@FXML
+	public void handleOnEditTelephone(TableColumn.CellEditEvent<Caregiver, String> event) {
+		event.getRowValue().setPhoneNumber(event.getNewValue());
+		doUpdate(event);
 	}
 }
