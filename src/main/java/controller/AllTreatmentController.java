@@ -60,7 +60,6 @@ public class AllTreatmentController {
     public void initialize() {
         readAllAndShowInTableView();
         comboBox.setItems(myComboBoxData);
-        comboBox.getSelectionModel().select(0);
         this.main = main;
 
         this.colID.setCellValueFactory(new PropertyValueFactory<Treatment, Integer>("tid"));
@@ -70,7 +69,13 @@ public class AllTreatmentController {
         this.colEnd.setCellValueFactory(new PropertyValueFactory<Treatment, String>("end"));
         this.colDescription.setCellValueFactory(new PropertyValueFactory<Treatment, String>("description"));
         this.tableView.setItems(this.tableviewContent);
+
+        // Loads the Combobox data
         createComboBoxData();
+
+        // Selects the default Combobox index
+        // Needs to be called after Combobox data has been loaded
+        comboBox.getSelectionModel().select(0);
     }
 
     /**
@@ -82,7 +87,7 @@ public class AllTreatmentController {
         this.dao = DAOFactory.getDAOFactory().createTreatmentDAO();
         List<Treatment> allTreatments;
         try {
-            allTreatments = dao.readAll();
+            allTreatments = dao.readAllNotArchived();
             for (Treatment treatment : allTreatments) {
                 this.tableviewContent.add(treatment);
             }
@@ -98,7 +103,7 @@ public class AllTreatmentController {
     private void createComboBoxData(){
         PatientDAO dao = DAOFactory.getDAOFactory().createPatientDAO();
         try {
-            patientList = (ArrayList<Patient>) dao.readAll();
+            patientList = (ArrayList<Patient>) dao.readAllNotArchived();
             this.myComboBoxData.add("alle");
             for (Patient patient: patientList) {
                 this.myComboBoxData.add(patient.getSurname());
@@ -120,7 +125,7 @@ public class AllTreatmentController {
         List<Treatment> allTreatments;
         if(p.equals("alle")){
             try {
-                allTreatments= this.dao.readAll();
+                allTreatments= this.dao.readAllNotArchived();
                 for (Treatment treatment : allTreatments) {
                     this.tableviewContent.add(treatment);
                 }
@@ -166,7 +171,7 @@ public class AllTreatmentController {
         Treatment t = this.tableviewContent.remove(index);
         TreatmentDAO dao = DAOFactory.getDAOFactory().createTreatmentDAO();
         try {
-            dao.deleteById(t.getTid());
+            dao.deleteByTid(t.getTid());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -192,7 +197,8 @@ public class AllTreatmentController {
     }
 
     /**
-     *  Handles mouseclick
+     *  Handles a mouse click on the tableViewContent.
+     *  On double-click it opens a new treatmentWindow to change its values
      */
     @FXML
     public void handleMouseClick(){
@@ -204,7 +210,6 @@ public class AllTreatmentController {
             }
         });
     }
-
 
     /**
      * Creates a new treatment window for the specified patient
@@ -224,6 +229,7 @@ public class AllTreatmentController {
             stage.setScene(scene);
             stage.setResizable(false);
             stage.showAndWait();
+            comboBox.getSelectionModel().select(0);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

@@ -52,15 +52,15 @@ public abstract class DAOimp<T> implements DAO<T> {
 
     /**
      *
-     * @return list of objects
+     * @return list of objects not archived
      * @throws SQLException if database errors occur
      */
     @Override
-    public List<T> readAll() throws SQLException {
+    public List<T> readAllNotArchived() throws SQLException {
         ArrayList<T> list = new ArrayList<T>();
         T object = null;
         Statement st = conn.createStatement();
-        ResultSet result = st.executeQuery(getReadAllStatementString());
+        ResultSet result = st.executeQuery(getReadAllNotArchivedStatementString());
         list = getListFromResultSet(result);
         return list;
     }
@@ -78,14 +78,23 @@ public abstract class DAOimp<T> implements DAO<T> {
 
     /**
      *
-     * @param key for object to be deleted
+     * @param key for object to be archived
      * @throws SQLException if database errors occur
      */
-    @Override
-    public void deleteById(long key) throws SQLException {
+    public void archiveById(long key) throws SQLException {
         Statement st = conn.createStatement();
-        st.executeUpdate(getDeleteStatementString(key));
+        st.executeUpdate(getArchiveStatementString(key));
     }
+
+    /**
+     * Deletes any patient that is longer than 10 years archived
+     * @throws SQLException
+     */
+    public void delete() throws SQLException {
+        Statement st=conn.createStatement();
+        st.executeUpdate(getDeleteStatementString());
+    }
+
 
     /**
      *
@@ -113,7 +122,7 @@ public abstract class DAOimp<T> implements DAO<T> {
      *
      * @return String
      */
-    protected abstract String getReadAllStatementString();
+    protected abstract String getReadAllNotArchivedStatementString();
 
     /**
      *
@@ -135,5 +144,11 @@ public abstract class DAOimp<T> implements DAO<T> {
      * @param key
      * @return String
      */
-    protected abstract String getDeleteStatementString(long key);
+    protected abstract String getArchiveStatementString(long key);
+
+    /**
+     *
+     * @return String
+     */
+    protected abstract String getDeleteStatementString();
 }

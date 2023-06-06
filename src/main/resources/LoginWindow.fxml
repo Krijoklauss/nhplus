@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane fx:id="mainBorderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="688.0" prefWidth="926.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.LoginWindowController">
+    <center>
+        <VBox maxWidth="250" maxHeight="150" spacing="8">
+            <children>
+                <Label text="Benutzername" />
+                <TextField fx:id="logUser" />
+
+                <Label text="Password" />
+                <PasswordField fx:id="logPassword" />
+                <HBox spacing="20">
+                    <Button onAction="#handleLogin" text="Submit"></Button>
+                    <Button onAction="#handleExit" text="Exit"></Button>
+                </HBox>
+            </children>
+        </VBox>
+    </center>
+</BorderPane>
