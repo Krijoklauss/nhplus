@@ -3,7 +3,6 @@ package controller;
 import datastorage.CaregiverDAO;
 import datastorage.DAOFactory;
 import datastorage.RoleDAO;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -12,10 +11,13 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import model.Caregiver;
 import model.Role;
-
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * 	The <code>AllCaregiverController</code> contains the entire logic of the caregiver view.
+ * 	It determines which data is displayed and how to react to events.
+ */
 public class AllCaregiverController {
 	@FXML
 	private TableView<Caregiver> tableView;
@@ -77,12 +79,15 @@ public class AllCaregiverController {
 		loadComboboxData();
 		this.comboBox.getSelectionModel().select(0);
 
-		if(!isAdmin()) {
+		if(!LoginController.isAdmin()) {
 			disableFeatures();
 		}
 		this.tableView.setItems(this.tableviewContent);
 	}
 
+	/**
+	 * Loads the required Combobox data
+	 */
 	private void loadComboboxData() {
 		List<Role> roles;
 		try {
@@ -96,14 +101,9 @@ public class AllCaregiverController {
 		}
 	}
 
-	private boolean isAdmin() {
-		Caregiver cUser = LoginController.getLoggedInUser();
-		if(cUser.getRole().getPower() == LoginController.getAdminPow()) {
-			return true;
-		}
-		return false;
-	}
-
+	/**
+	 * Disables all GUI features that are only viewable by admin users
+	 */
 	private void disableFeatures() {
 		// Hide input fields
 		btnAdd.setVisible(false);
@@ -124,7 +124,7 @@ public class AllCaregiverController {
 	}
 
 	/**
-	 * calls readAll in CaregiverDAO and shows treatments in the table
+	 * Calls readAll in CaregiverDAO and shows treatments in the table
 	 */
 	public void readAllAndShowInTableView() {
 		this.tableviewContent.clear();

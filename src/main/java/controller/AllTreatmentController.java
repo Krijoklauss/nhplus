@@ -60,7 +60,6 @@ public class AllTreatmentController {
     public void initialize() {
         readAllAndShowInTableView();
         comboBox.setItems(myComboBoxData);
-        comboBox.getSelectionModel().select(0);
         this.main = main;
 
         this.colID.setCellValueFactory(new PropertyValueFactory<Treatment, Integer>("tid"));
@@ -70,7 +69,13 @@ public class AllTreatmentController {
         this.colEnd.setCellValueFactory(new PropertyValueFactory<Treatment, String>("end"));
         this.colDescription.setCellValueFactory(new PropertyValueFactory<Treatment, String>("description"));
         this.tableView.setItems(this.tableviewContent);
+
+        // Loads the Combobox data
         createComboBoxData();
+
+        // Selects the default Combobox index
+        // Needs to be called after Combobox data has been loaded
+        comboBox.getSelectionModel().select(0);
     }
 
     /**
@@ -192,7 +197,8 @@ public class AllTreatmentController {
     }
 
     /**
-     *  Handles mouseclick
+     *  Handles a mouse click on the tableViewContent.
+     *  On double-click it opens a new treatmentWindow to change its values
      */
     @FXML
     public void handleMouseClick(){
@@ -204,7 +210,6 @@ public class AllTreatmentController {
             }
         });
     }
-
 
     /**
      * Creates a new treatment window for the specified patient

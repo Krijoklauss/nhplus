@@ -3,10 +3,8 @@ package datastorage;
 import model.Caregiver;
 import model.Role;
 import utils.DateConverter;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
