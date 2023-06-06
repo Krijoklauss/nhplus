@@ -56,7 +56,7 @@ Wird das Open JDK verwendet, werden JavaFX-Abhängigkeiten nicht importiert. Die
 - Benutzername: admin 
 - Passwort: admin
 
-## Testfälle
+## Tests
 
 ### Pflegermodul
 
