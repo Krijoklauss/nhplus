@@ -2,14 +2,20 @@ package controller;
 
 
 
+import datastorage.CaregiverDAO;
+import datastorage.DAOFactory;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;
+import javafx.scene.control.PasswordField;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
+
 import javafx.scene.control.TextField;
-import org.w3c.dom.Text;
+import model.Caregiver;
 
 public class LoginWindowController {
     @FXML
@@ -17,7 +23,14 @@ public class LoginWindowController {
     @FXML
     private TextField logUser;
     @FXML
-    private TextField logPassword;
+    private PasswordField logPassword;
+
+    private CaregiverDAO dao;
+
+    public void initialize() {
+        this.dao = DAOFactory.getDAOFactory().createCaregiverDAO();
+    }
+
     @FXML
     private void handleLogin() {
 
@@ -52,7 +65,20 @@ public class LoginWindowController {
     }
 
     private boolean loginIsValid(String username, String password) {
-        return true;
+        List<Caregiver> allCaregiver;
+        try {
+            allCaregiver = this.dao.readAllNotArchived();
+            for(Caregiver c : allCaregiver) {
+                if(username.equals(c.getUsername()) && password.equals(c.getPassword())) {
+                    // Sets the currently loggedIn user
+                    LoginController.setLoggedInUser(c);
+                    return true;
+                }
+            }
+        } catch(SQLException err) {
+            err.printStackTrace();
+        }
+        return false;
     }
 
     private void passLogin() {
