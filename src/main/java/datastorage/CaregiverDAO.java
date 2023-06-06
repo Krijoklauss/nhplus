@@ -1,8 +1,8 @@
 package datastorage;
 
 import model.Caregiver;
+import model.Role;
 import utils.DateConverter;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,8 +27,9 @@ public class CaregiverDAO extends DAOimp<Caregiver> {
 	@Override
 	protected String getCreateStatementString(Caregiver caregiver) {
 		String archivedAt = (caregiver.getArchivedAt() != null) ? "'" + caregiver.getArchivedAt() + "'" : null;
-		return String.format("INSERT INTO caregiver (firstname, surname, phonenumber, archived, archivedat) VALUES ('%s', '%s', '%s', '%b', %s)",
-			caregiver.getFirstName(), caregiver.getSurname(), caregiver.getPhoneNumber(), caregiver.getArchived(), archivedAt);
+		return String.format("INSERT INTO caregiver (rid, firstname, surname, username, password, phonenumber, archived, archivedat) VALUES ('%d', '%s', '%s', '%s', '%s', '%s', '%b', %s)",
+			caregiver.getRole().getRid(), caregiver.getFirstName(), caregiver.getSurname(), caregiver.getUsername(), caregiver.getPassword(), caregiver.getPhoneNumber(), caregiver.getArchived(), archivedAt
+		);
 	}
 
 	/**
@@ -47,8 +48,13 @@ public class CaregiverDAO extends DAOimp<Caregiver> {
 	 */
 	@Override
 	protected Caregiver getInstanceFromResultSet(ResultSet result) throws SQLException {
-		LocalDate archivedAt = DateConverter.convertStringToLocalDate(result.getString(6));
-		Caregiver c = new Caregiver(result.getInt(1), result.getString(2), result.getString(3), result.getString(4), result.getBoolean(5), archivedAt);
+		LocalDate archivedAt = DateConverter.convertStringToLocalDate(result.getString(9));
+		Role r = new Role(
+				result.getInt(2),
+				result.getString(11),
+				result.getInt(12)
+		);
+		Caregiver c = new Caregiver(result.getInt(1), result.getString(3), result.getString(4), result.getString(5), result.getString(6), result.getString(7), r, result.getBoolean(8), archivedAt);
 		return c;
 	}
 
@@ -57,7 +63,7 @@ public class CaregiverDAO extends DAOimp<Caregiver> {
 	 */
 	@Override
 	protected String getReadAllNotArchivedStatementString() {
-		return "SELECT * FROM caregiver WHERE archived = false";
+		return "SELECT * FROM caregiver LEFT JOIN role ON role.rid=caregiver.rid WHERE caregiver.archived = false";
 	}
 
 	/**
@@ -70,8 +76,13 @@ public class CaregiverDAO extends DAOimp<Caregiver> {
 		ArrayList<Caregiver> list = new ArrayList<Caregiver>();
 		Caregiver c = null;
 		while (result.next()) {
-			LocalDate archivedAt = DateConverter.convertStringToLocalDate(result.getString(6));
-			c = new Caregiver(result.getInt(1), result.getString(2), result.getString(3), result.getString(4), result.getBoolean(5), archivedAt);
+			Role r = new Role(
+					result.getInt(2),
+					result.getString(11),
+					result.getInt(12)
+			);
+			LocalDate archivedAt = DateConverter.convertStringToLocalDate(result.getString(9));
+			c = new Caregiver(result.getInt(1), result.getString(3), result.getString(4), result.getString(5), result.getString(6), result.getString(7), r, result.getBoolean(8), archivedAt);
 			list.add(c);
 		}
 		return list;
@@ -83,7 +94,9 @@ public class CaregiverDAO extends DAOimp<Caregiver> {
 	 */
 	@Override
 	protected String getUpdateStatementString(Caregiver caregiver) {
-		return String.format("UPDATE caregiver SET firstname = '%s', surname = '%s', phonenumber = '%s' WHERE cid = %d", caregiver.getFirstName(), caregiver.getSurname(), caregiver.getPhoneNumber(), caregiver.getCid());
+		return String.format(
+				"UPDATE caregiver SET firstname = '%s', surname = '%s', username = '%s', password = '%s', phonenumber = '%s' WHERE cid = %d",
+				caregiver.getFirstName(), caregiver.getSurname(), caregiver.getUsername(), caregiver.getPassword(), caregiver.getPhoneNumber(), caregiver.getCid());
 	}
 
 	/**

@@ -40,4 +40,10 @@ public class DAOFactory {
     public CaregiverDAO createCaregiverDAO() {
         return new CaregiverDAO(ConnectionBuilder.getConnection());
     }
+
+    /**
+     *
+     * @return a new RoleDAO.
+     */
+    public RoleDAO createRoleDAO() { return new RoleDAO(ConnectionBuilder.getConnection()); }
 }

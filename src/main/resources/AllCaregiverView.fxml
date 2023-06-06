@@ -12,6 +12,7 @@
                 <TableColumn fx:id="colID" maxWidth="1200.0" minWidth="5.0" prefWidth="5.0" text="ID"/>
                 <TableColumn fx:id="colSurname" maxWidth="7500.0" minWidth="20.0" onEditCommit="#handleOnEditSurname" prefWidth="100.0" text="Nachname"/>
                 <TableColumn fx:id="colFirstName" maxWidth="7500.0" onEditCommit="#handleOnEditFirstname" prefWidth="75.0" text="Vorname"/>
+                <TableColumn fx:id="colUsername" maxWidth="7500.0" onEditCommit="#handleOnEditUsername" prefWidth="75.0" text="Benutzername" />
                 <TableColumn fx:id="colTelephone" maxWidth="7500.0" onEditCommit="#handleOnEditTelephone" prefWidth="75.0" text="Telefon"/>
             </columns>
             <columnResizePolicy>
@@ -20,9 +21,12 @@
         </TableView>
         <HBox layoutX="420.0" layoutY="450.0" spacing="10.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0">
             <children>
-                <TextField fx:id="txfSurname" prefHeight="26.0" prefWidth="220.0" promptText="Nachname"/>
-                <TextField fx:id="txfFirstname" prefHeight="26.0" prefWidth="220.0" promptText="Vorname"/>
-                <TextField fx:id="txfTelephone" prefWidth="160.0" promptText="Telefonnummer"/>
+                <ComboBox fx:id="comboBox" minWidth="50.0" prefWidth="100.0" />
+                <TextField fx:id="txfSurname" prefHeight="26.0" prefWidth="150.0" promptText="Nachname"/>
+                <TextField fx:id="txfFirstname" prefHeight="26.0" prefWidth="150.0" promptText="Vorname"/>
+                <TextField fx:id="txfUsername" prefHeight="26.0" prefWidth="150.0" promptText="Benutzername"/>
+                <PasswordField fx:id="txfPassword" prefHeight="26.0" prefWidth="150.0" promptText="Passwort"/>
+                <TextField fx:id="txfTelephone" prefWidth="150.0" promptText="Telefonnummer"/>
                 <Button fx:id="btnAdd" mnemonicParsing="false" onAction="#handleNewCaregiver" prefWidth="90.0" text="Hinzufügen"/>
                 <Button fx:id="btnDelete" mnemonicParsing="false" onAction="#handleArchiveRow" prefWidth="90.0" text="Löschen"/>
             </children>

@@ -12,7 +12,7 @@
                 <TextField fx:id="logUser" />
 
                 <Label text="Password" />
-                <TextField fx:id="logPassword" />
+                <PasswordField fx:id="logPassword" />
                 <HBox spacing="20">
                     <Button onAction="#handleLogin" text="Submit"></Button>
                     <Button onAction="#handleExit" text="Exit"></Button>
